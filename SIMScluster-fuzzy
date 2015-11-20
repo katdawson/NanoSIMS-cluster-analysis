@@ -1,0 +1,69 @@
+# fuzzy cluster analysis of SIMS data
+# adjust the working directory to keep track of files
+# manually select the kvalue for number of clusters
+# saves wssplot, mean cluster values, cluster appended dataset, cluster plot
+# Kdawson 15April2015
+SIMSfuzzy=function()
+{
+  library(cluster)
+  library(gtools)
+  library(tcltk)
+  library(fpc)
+  # Ask user for working directory
+  ask("Where should files be saved? (press enter)")
+  directory=tk_choose.dir("Where should files be saved?") 
+  setwd(directory)
+  
+  # Ask user for data file to cluster
+  ask("Which dataset should R cluster? (press enter)")
+  dataset=tk_choose.files(caption="Which dataset should R cluster?")
+  dataset1=read.table(dataset,header=TRUE,row.names=1)
+  
+  # Get an indication of how many clusters are appropriate
+  wss=(nrow(dataset1)-1)*sum(apply(dataset1,2,var))
+  for(i in 1:15) wss[i]=sum(kmeans(dataset1,centers=i)$withinss)
+  plot(1:15,wss,type="b")
+  # Save plot of wss for various cluster amounts
+  png("wssplot_fz.png")
+  plot(1:15,wss,type="b")
+  dev.off()
+  
+  kvalue=ask("How many clusters?")
+  evalue=ask("How fuzzy should the clusters be? (1<evalue<2, 1=hard, 2=fuzzy") 
+  
+  # fuzzy cmeans clustering with set kvalue, exp value, SqEuclidean distance and 500 interations
+    data.fz=fanny(dataset1,kvalue,diss=FALSE,memb.exp=evalue, stand=TRUE,metric="SqEuclidean",maxit=1000)
+    
+  # Save summary info for fuzzy clustering
+    filename1=ask("Give the fuzzy cluster summary file a name ending with .txt")
+    sink(filename1)
+    summary(data.fz)
+    sink()
+  
+  # Determine the average value for the closest hard cluster and saves this as txt
+    aggregate(dataset1,by=list(data.fz$clustering),FUN=mean)
+    clustermean=aggregate(dataset1,by=list(data.fz$clustering),FUN=mean)
+    filename1=ask("Give the cluster mean values file a name ending with .txt")
+    write.table(clustermean,file=filename1,sep="\t")
+  
+    
+  # Appends dataset with cluster assignments for each row
+    data.fz.clus=data.frame(dataset1,data.fz$clustering)
+    filename2=ask("Give the cluster appended dataset a file name ending with .txt")
+    write.table(data.fz.clus,filename2,sep="\t")
+    
+    clusplot(dataset1,data.fz$clustering,color=TRUE,shade=FALSE,labels=2,lines=0)
+  # Saves a plot of the clusters
+    filename3=ask("Give the cluster plot a filename ending in .pdf")
+    pdf(filename3)
+    clusplot(dataset1,data.fz$clustering,color=TRUE,shade=FALSE,labels=2,lines=0)
+    
+    plot(silhouette(data.fz),col=data.fz$silinfo$widths+1)
+  # Saves silhouette plot with silhouette values
+    filename4=ask("Give the silhouette plot a filename ending in .pdf")
+    pdf(filename4)      
+    plot(silhouette(data.fz),col=data.fz$silinfo$widths+1)
+    
+    dev.off()
+}
+    
