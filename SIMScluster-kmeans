@@ -1,0 +1,67 @@
+# cluster analysis of SIMS data
+# adjust the working directory to keep track of files
+# manually select the kvalue for number of clusters
+# saves wssplot, mean cluster values, cluster appended dataset, cluster plot
+# Kdawson 15April2015
+SIMScluster=function()
+  {
+  library(cluster)
+  library(gtools)
+  library(tcltk)
+  library(fpc)
+  # Ask user for working directory
+  ask("Where should files be saved? (press enter)")
+  directory=tk_choose.dir("Where should files be saved?") 
+  setwd(directory)
+
+  # Ask user for data file to cluster
+  ask("Which dataset should R cluster? (press enter)")
+  dataset=tk_choose.files(caption="Which dataset should R cluster?")
+  dataset1=read.table(dataset,header=TRUE,row.names=1)
+    
+  # Get an indication of how many clusters are appropriate
+  wss=(nrow(dataset1)-1)*sum(apply(dataset1,2,var))
+  for(i in 2:15) wss[i]=sum(kmeans(dataset1,centers=i)$withinss)
+  plot(1:15,wss,type="b")
+  kvalue=ask("How many clusters?")
+  
+  # Save plot of wss for various cluster amounts
+  png("wssplot.png")
+  plot(1:15,wss,type="b")
+  dev.off()
+    
+  # sets the kmeans number as appears appropriate for dataset
+  # k should be the #clusters for which wss stabilizes
+  fit=kmeans(dataset1,kvalue, iter.max = 500,nstart=10)
+    
+  # Determine the average value for each cluster and saves this as txt
+  aggregate(dataset1,by=list(fit$cluster),FUN=mean)
+  clustermean=aggregate(dataset1,by=list(fit$cluster),FUN=mean)
+  filename1=ask("Give the cluster mean values file a name ending with .txt")
+  write.table(clustermean,file=filename1,sep="\t")
+    
+  # Appends dataset with cluster assignments for each row
+  fitdata=data.frame(dataset1,fit$cluster)
+  filename2=ask("Give the cluster appended dataset a file name ending with .txt")
+  write.table(fitdata,filename2,sep="\t")
+  
+  clusplot(dataset1,fit$cluster,color=TRUE,shade=FALSE,labels=2,lines=0)
+  # Saves a plot of the clusters
+  filename3=ask("Give the cluster plot a filename ending in .pdf")
+  pdf(filename3)
+  clusplot(dataset1,fit$cluster,color=TRUE,shade=FALSE,labels=2,lines=0)
+  
+  #make a silhouette plot of kmeans data
+  diss=daisy(dataset1)
+  diss2=diss^2
+  silho=silhouette(fit$cluster,diss2)
+  silho2=sortSilhouette((silho))
+  plot(silho2,col=c("red3","green4","navyblue","darkcyan","deeppink"))
+ 
+  # Saves silhouette plot with silhouette values
+  filename4=ask("Give the silhouette plot a filename ending in .pdf")
+  pdf(filename4)      
+  plot(silho2,col=c("red3","green4","navyblue","darkcyan","deeppink"))
+  
+  dev.off()
+  }
