@@ -1,0 +1,56 @@
+# Use this script after modifying SIMS cluster data with cluster assignments
+# Add in the FISH assigned phylogenetic classifications
+# Kdawson 15April2015
+SIMSplots=function()
+  {
+  library(ggplot2)
+  library(gtools)
+  library(tcltk)
+  # Ask user for working directory
+  ask("Where should files be saved? (press enter)")
+  directory=tk_choose.dir("Where should files be saved?") 
+  setwd(directory)
+  
+  # Ask user for data file
+  ask("Which dataset should R make plots for? (press enter)")
+  dataset=tk_choose.files(caption="Which dataset should R cluster?")
+  dataset1=read.table(dataset,header=TRUE,row.names=1)
+
+  #this colour pallete is light blue, green, dark blue, orange, pink
+  pallete3=c("#56B4E9","#009E73","#0072B2","#D55E00","#CC79A7")
+
+  #13C vs 15N
+  filename1=ask("Give the 13C vs 15N plot a name ending in .pdf")
+  ggplot(data=dataset1,aes(x=R15N,y=R13C))+geom_point(aes(colour=clust,shape=type),size=5)+scale_colour_manual(values=pallete3)
+  ggsave(filename1,width=8.04,height = 6.5)
+  
+  #33S vs 15N
+  filename2=ask("Give the 33S vs 15N plot a name ending in .pdf")
+  ggplot(data=dataset1,aes(x=R15N,y=R33S))+geom_point(aes(colour=clust,shape=type),size=5)+scale_colour_manual(values=pallete3)
+  ggsave(filename2,width=8.04,height = 6.5)
+  
+  #33S vs 13C
+  filename3=ask("Give the 33S vs 13C plot a name ending in .pdf")
+  ggplot(data=dataset1,aes(x=R13C,y=R33S))+geom_point(aes(colour=clust,shape=type),size=5)+scale_colour_manual(values=pallete3)
+  ggsave(filename3,width=8.04,height = 6.5)  
+  
+  #StoN vs CtoN
+  filename4=ask("Give the S:N vs C:N plot a name ending in .pdf")
+  ggplot(data=dataset1,aes(x=CtoN,y=StoN))+geom_point(aes(colour=clust,shape=type),size=5)+scale_colour_manual(values=pallete3)
+  ggsave(filename4,width=8.04,height = 6.5)
+  
+  #StoN vs 15N
+  filename5=ask("Give the S:N vs 15N plot a name ending in .pdf")
+  ggplot(data=dataset1,aes(x=R15N,y=StoN))+geom_point(aes(colour=clust,shape=type),size=5)+scale_colour_manual(values=pallete3)
+  ggsave(filename5,width=8.04,height = 6.5) 
+  
+  #CtoN vs 15N
+  filename6=ask("Give the C:N vs 15N plot a name ending in .pdf")
+  ggplot(data=dataset1,aes(x=R15N,y=CtoN))+geom_point(aes(colour=clust,shape=type),size=5)+scale_colour_manual(values=pallete3)
+  ggsave(filename6,width=8.04,height = 6.5) 
+  
+  #overlay cluster on xy positions
+  filename7=ask("Give the ROI xy cluster colored plot a name ending in .pdf")
+  ggplot(data=dataset1,aes(x=Xi,y=Yi))+geom_point(aes(colour=clust,shape=type),size=5)+scale_colour_manual(values=pallete3)
+  ggsave(filename7,width=8.04,height = 6.5)
+  }
