@@ -1,0 +1,69 @@
+# Validate cluster solutions with a series of validation metrics
+
+
+SIMSclustvalid=function()
+{
+  library(cluster)
+  library(gtools)
+  library(tcltk)
+  library(fpc)
+  library(clusterCrit)
+  library(clusterSim)
+  
+  # Ask user for working directory
+  ask("Where should files be saved? (press enter)")
+  directory=tk_choose.dir("Where should files be saved?") 
+  setwd(directory)
+  
+  # Ask user for data file to cluster
+  ask("Which dataset should R look at? (press enter)")
+  dataset=tk_choose.files(caption="Which dataset should R look at?")
+  dataset1=read.table(dataset,header=TRUE,row.names=1)
+  
+  #convert data.fram to a numeric matrix for intCriteria()
+  x=data.matrix(dataset1)
+
+  #normalize data (x/sd) to be comparable with other techniques in clusterSim
+  xstand=data.Normalization(x,type="n6",normalization = "column")
+
+  #run inCriteria with various algorithims for 2-10 clusters with fuzzy c-means
+  #think about a for (i 2:10) or repeat command as an alternative
+    fuzzy2=(fanny(xstand,k=2,diss=FALSE,memb.exp=1.2,stand=FALSE,metric="SqEuclidean",maxit=500))
+    index2=intCriteria(xstand,fuzzy2$clustering,c("C_index","Calinski_Harabasz","Silhouette"))
+    write.table(index2,file="index2.txt")
+
+    fuzzy3=(fanny(xstand,k=3,diss=FALSE,memb.exp=1.2,stand=FALSE,metric="SqEuclidean",maxit=500))
+    index3=intCriteria(xstand,fuzzy3$clustering,c("C_index","Calinski_Harabasz","Silhouette"))
+    write.table(index3,file="index3.txt")
+    
+    fuzzy4=(fanny(xstand,k=4,diss=FALSE,memb.exp=1.2,stand=FALSE,metric="SqEuclidean",maxit=500))
+    index4=intCriteria(xstand,fuzzy4$clustering,c("C_index","Calinski_Harabasz","Silhouette"))
+    write.table(index4,file="index4.txt")    
+    
+    fuzzy5=(fanny(xstand,k=5,diss=FALSE,memb.exp=1.2,stand=FALSE,metric="SqEuclidean",maxit=500))
+    index5=intCriteria(xstand,fuzzy5$clustering,c("C_index","Calinski_Harabasz","Silhouette"))
+    write.table(index5,file="index5.txt")   
+    
+    fuzzy6=(fanny(xstand,k=6,diss=FALSE,memb.exp=1.2,stand=FALSE,metric="SqEuclidean",maxit=500))
+    index6=intCriteria(xstand,fuzzy6$clustering,c("C_index","Calinski_Harabasz","Silhouette"))
+    write.table(index6,file="index6.txt")        
+
+    fuzzy7=(fanny(xstand,k=7,diss=FALSE,memb.exp=1.2,stand=FALSE,metric="SqEuclidean",maxit=500))
+    index7=intCriteria(xstand,fuzzy7$clustering,c("C_index","Calinski_Harabasz","Silhouette"))
+    write.table(index7,file="index7.txt")      
+    
+    fuzzy8=(fanny(xstand,k=8,diss=FALSE,memb.exp=1.2,stand=FALSE,metric="SqEuclidean",maxit=500))
+    index8=intCriteria(xstand,fuzzy8$clustering,c("C_index","Calinski_Harabasz","Silhouette"))
+    write.table(index8,file="index8.txt")    
+    
+    fuzzy9=(fanny(xstand,k=9,diss=FALSE,memb.exp=1.2,stand=FALSE,metric="SqEuclidean",maxit=500))
+    index9=intCriteria(xstand,fuzzy9$clustering,c("C_index","Calinski_Harabasz","Silhouette"))
+    write.table(index9,file="index9.txt")  
+    
+    fuzzy10=(fanny(xstand,k=10,diss=FALSE,memb.exp=1.2,stand=FALSE,metric="SqEuclidean",maxit=500))
+    index10=intCriteria(xstand,fuzzy10$clustering,c("C_index","Calinski_Harabasz","Silhouette"))
+    write.table(index10,file="index10.txt")   
+    
+}
+
+  
